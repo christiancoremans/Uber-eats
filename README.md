@@ -1,2 +1,2 @@
 # Uber-eats
-School project, making a uber eats like website using laravel framework. 
+School project, making a uber eats/Thuisbezorgd like website using laravel framework. 
