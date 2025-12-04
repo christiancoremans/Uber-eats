@@ -2,31 +2,35 @@
 
 namespace App\Actions\Fortify;
 
-use App\Models\User;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
-use Laravel\Fortify\Contracts\UpdatesUserPasswords;
+use Laravel\Fortify\Contracts\UpdatesUserProfileInformation;
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Hash;
 
-class UpdateUserPassword implements UpdatesUserPasswords
+class UpdateUserProfileInformation implements UpdatesUserProfileInformation
 {
-    use PasswordValidationRules;
-
-    /**
-     * Validate and update the user's password.
-     *
-     * @param  array<string, string>  $input
-     */
-    public function update(User $user, array $input): void
+    public function update($user, array $input)
     {
         Validator::make($input, [
-            'current_password' => ['required', 'string', 'current_password:web'],
-            'password' => $this->passwordRules(),
-        ], [
-            'current_password.current_password' => __('The provided password does not match your current password.'),
-        ])->validateWithBag('updatePassword');
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required','email','max:255', Rule::unique(\App\Models\User::class)->ignore($user->id)],
+            'phone' => ['nullable','string','max:30'],
+            'address_line1' => ['nullable','string','max:255'],
+            'address_line2' => ['nullable','string','max:255'],
+            'postcode' => ['nullable','string','max:20'],
+            'city' => ['nullable','string','max:255'],
+            'restaurant_name' => ['nullable','string','max:255'],
+        ])->validate();
 
         $user->forceFill([
-            'password' => Hash::make($input['password']),
+            'name' => $input['name'],
+            'email' => $input['email'],
+            'phone' => $input['phone'] ?? null,
+            'address_line1' => $input['address_line1'] ?? null,
+            'address_line2' => $input['address_line2'] ?? null,
+            'postcode' => $input['postcode'] ?? null,
+            'city' => $input['city'] ?? null,
+            'restaurant_name' => $input['restaurant_name'] ?? null,
         ])->save();
     }
 }
