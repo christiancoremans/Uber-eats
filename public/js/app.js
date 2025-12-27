@@ -1,1 +1,1 @@
-console.log('App JS loaded');
+// console.log('App JS loaded');

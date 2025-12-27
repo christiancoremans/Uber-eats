@@ -2,54 +2,89 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Spatie\MediaLibrary\HasMedia;
+use Spatie\MediaLibrary\InteractsWithMedia;
 
-class User extends Authenticatable
+class User extends Authenticatable implements HasMedia
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use HasFactory, Notifiable;
+    use HasFactory, Notifiable, InteractsWithMedia;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
     protected $fillable = [
-    'name',
-    'email',
-    'password',
-    'role',
-    'phone',
-    'address_line1',
-    'address_line2',
-    'postcode',
-    'city',
-    'restaurant_name',
+        'name',
+        'email',
+        'password',
+        'role', // Changed from user_type to role
+        'phone',
+        'address_line1',
+        'address_line2',
+        'postcode',
+        'city',
+        'restaurant_name'
     ];
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
         'password',
         'remember_token',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    // Check if user is a restaurant
+    public function isRestaurant()
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->role === 'restaurant';
+    }
+
+    // Check if user is a customer
+    public function isCustomer()
+    {
+        return $this->role === 'user';
+    }
+
+    // Restaurant relationships
+    public function categories()
+    {
+        if ($this->isRestaurant()) {
+            return $this->hasMany(Category::class, 'restaurant_id');
+        }
+        return null;
+    }
+
+    public function menuItems()
+    {
+        if ($this->isRestaurant()) {
+            return $this->hasMany(MenuItem::class, 'restaurant_id');
+        }
+        return null;
+    }
+
+    public function orders()
+    {
+        if ($this->isRestaurant()) {
+            return $this->hasMany(Order::class, 'restaurant_id');
+        } else {
+            return $this->hasMany(Order::class, 'customer_id');
+        }
+    }
+
+    public function reviews()
+    {
+        return $this->hasMany(Review::class, 'restaurant_id');
+    }
+
+    // Register media collections for restaurant
+    public function registerMediaCollections(): void
+    {
+        if ($this->isRestaurant()) {
+            $this->addMediaCollection('restaurant_logo')
+                ->singleFile()
+                ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
+        }
     }
 }

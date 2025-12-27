@@ -21,3 +21,16 @@ Route::get('/clear-session', function () {
     session()->flush();
     return redirect('/')->with('status', 'Session cleared!');
 });
+
+// Restaurant menu routes
+Route::middleware(['auth'])->prefix('restaurant')->name('restaurant.')->group(function () {
+    // Menu dashboard
+    Route::get('/menu/dashboard', [\App\Http\Controllers\Restaurant\MenuController::class, 'dashboard'])
+        ->name('menu.dashboard');
+
+    // Categories routes
+    Route::resource('categories', \App\Http\Controllers\Restaurant\CategoryController::class);
+
+    // Menu items routes
+    Route::resource('menu-items', \App\Http\Controllers\Restaurant\MenuItemController::class);
+});

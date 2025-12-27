@@ -4,6 +4,15 @@
 
         <ul class="nav-links">
             @auth
+                {{-- Add Menu button for restaurants --}}
+                @if(Auth::user()->role === 'restaurant')
+                    <li>
+                        <a href="{{ route('restaurant.menu.dashboard') }}" style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px;">
+                            🍽️ Menu Beheren
+                        </a>
+                    </li>
+                @endif
+
                 {{-- User is logged in --}}
                 <li class="nav-item dropdown" style="position: relative;">
                     <a href="#" class="dropdown-toggle" style="display: flex; align-items: center; gap: 5px;">
@@ -16,6 +25,11 @@
                         <li style="border-bottom: 1px solid #eee;">
                             <a href="{{ route('profile') }}" style="display: block; padding: 10px 15px; color: #333; text-decoration: none;">Profiel</a>
                         </li>
+                        @if(Auth::user()->role === 'restaurant')
+                            <li style="border-bottom: 1px solid #eee;">
+                                <a href="{{ route('restaurant.menu.dashboard') }}" style="display: block; padding: 10px 15px; color: #333; text-decoration: none;">Menu Dashboard</a>
+                            </li>
+                        @endif
                         <li>
                             <form method="POST" action="{{ route('logout') }}" style="margin: 0;">
                                 @csrf
