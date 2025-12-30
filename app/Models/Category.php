@@ -18,6 +18,14 @@ class Category extends Model
         'is_active'
     ];
 
+    public function getRestaurantsCountAttribute()
+    {
+        return $this->menuItems()
+            ->where('is_active', true)
+            ->distinct('restaurant_id')
+            ->count('restaurant_id');
+    }
+
     protected $casts = [
         'is_active' => 'boolean'
     ];

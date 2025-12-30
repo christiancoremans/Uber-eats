@@ -50,18 +50,19 @@ class User extends Authenticatable implements HasMedia
     // Restaurant relationships
     public function categories()
     {
-        if ($this->isRestaurant()) {
-            return $this->hasMany(Category::class, 'restaurant_id');
-        }
-        return null;
+        return $this->hasManyThrough(
+            Category::class,
+            MenuItem::class,
+            'restaurant_id', // Foreign key on menu_items table
+            'id', // Foreign key on categories table
+            'id', // Local key on users table
+            'category_id' // Local key on menu_items table
+        )->distinct();
     }
 
     public function menuItems()
     {
-        if ($this->isRestaurant()) {
-            return $this->hasMany(MenuItem::class, 'restaurant_id');
-        }
-        return null;
+        return $this->hasMany(MenuItem::class, 'restaurant_id');
     }
 
     public function orders()
@@ -87,4 +88,18 @@ class User extends Authenticatable implements HasMedia
                 ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
         }
     }
+        public function getAverageRatingAttribute()
+    {
+        return $this->reviews()->avg('rating') ?? 0;
+    }
+    public function getReviewsCountAttribute()
+    {
+        return $this->reviews()->count();
+    }
+
+    public function getMenuItemsCountAttribute()
+    {
+        return $this->menuItems()->where('is_active', true)->count();
+    }
+
 }
