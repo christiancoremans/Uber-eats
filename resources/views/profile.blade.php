@@ -12,8 +12,23 @@
     <div class="profile-content">
         <div class="profile-sidebar">
             <div class="user-info">
-                <div class="avatar">
-                    <span>{{ substr(Auth::user()->name, 0, 1) }}</span>
+                <!-- Profile Picture Section -->
+                <div class="avatar-container">
+                    <div class="avatar" id="profile-picture-container">
+                        @if(Auth::user()->getFirstMediaUrl('profile_picture'))
+                            <img src="{{ Auth::user()->getFirstMediaUrl('profile_picture') }}" alt="{{ Auth::user()->name }}" class="profile-img">
+                        @else
+                            <span>{{ substr(Auth::user()->name, 0, 1) }}</span>
+                        @endif
+                    </div>
+                    <button type="button" class="change-profile-pic-btn" onclick="document.getElementById('profile-picture-input').click()">
+                        📷 Verander profielfoto
+                    </button>
+                    <form id="profile-picture-form" action="{{ route('profile.update-picture') }}" method="POST" enctype="multipart/form-data" style="display: none;">
+                        @csrf
+                        @method('POST')
+                        <input type="file" id="profile-picture-input" name="profile_picture" accept="image/jpeg,image/png,image/jpg,image/webp" onchange="this.form.submit()">
+                    </form>
                 </div>
                 <h3>{{ Auth::user()->name }}</h3>
                 <p>{{ Auth::user()->email }}</p>
@@ -28,8 +43,8 @@
                     <a href="#">Mijn Bestellingen</a>
                     <a href="#">Mijn Adressen</a>
                 @elseif(Auth::user()->role === 'restaurant')
-                    <a href="#">Restaurant Dashboard</a>
-                    <a href="#">Menu Beheren</a>
+                    <a href="{{ route('restaurant.menu.dashboard') }}">Restaurant Dashboard</a>
+                    <a href="{{ route('restaurant.menu-items.index') }}">Menu Beheren</a>
                     <a href="#">Bestellingen</a>
                 @endif
                 <a href="#">Instellingen</a>
@@ -37,6 +52,28 @@
         </div>
 
         <div class="profile-main">
+            <!-- Banner Section -->
+            <div class="profile-card">
+                <h2>Profiel Banner</h2>
+                <div class="banner-section">
+                    @if(Auth::user()->getFirstMediaUrl('banner'))
+                        <div class="current-banner">
+                            <img src="{{ Auth::user()->getFirstMediaUrl('banner') }}" alt="Banner" class="banner-img">
+                        </div>
+                    @endif
+                    <form action="{{ route('profile.update-banner') }}" method="POST" enctype="multipart/form-data" class="banner-form">
+                        @csrf
+                        @method('POST')
+                        <div class="form-group">
+                            <label for="banner">Upload Banner</label>
+                            <input type="file" id="banner" name="banner" accept="image/jpeg,image/png,image/jpg,image/webp">
+                            <p class="form-help">Deze banner wordt weergegeven op je profielpagina</p>
+                        </div>
+                        <button type="submit" class="btn-primary">Banner Opslaan</button>
+                    </form>
+                </div>
+            </div>
+
             <div class="profile-card">
                 <h2>Persoonlijke Gegevens</h2>
                 <form method="POST" action="#">
@@ -133,18 +170,48 @@
     margin-bottom: 1.5rem;
 }
 
+.avatar-container {
+    position: relative;
+    margin-bottom: 1rem;
+}
+
 .avatar {
-    width: 80px;
-    height: 80px;
+    width: 120px;
+    height: 120px;
     background: linear-gradient(135deg, #ff4d4d, #ff8a00);
     border-radius: 50%;
     margin: 0 auto 1rem;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 2rem;
+    font-size: 3rem;
     color: white;
     font-weight: bold;
+    overflow: hidden;
+    position: relative;
+}
+
+.profile-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.change-profile-pic-btn {
+    margin-top: 0.5rem;
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    color: #666;
+    border: 2px solid #e0e0e0;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.change-profile-pic-btn:hover {
+    background: #e9ecef;
+    border-color: #dee2e6;
 }
 
 .user-info h3 {
@@ -206,6 +273,33 @@
     border-bottom: 2px solid #f0f0f0;
 }
 
+/* Banner Section */
+.banner-section {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.current-banner {
+    width: 100%;
+    height: 200px;
+    border-radius: 12px;
+    overflow: hidden;
+    background: #f8f9fa;
+}
+
+.banner-img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.banner-form {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
 .form-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
@@ -224,8 +318,31 @@
     padding: 0.75rem;
     border: 2px solid #e0e0e0;
     border-radius: 8px;
-    background: #f8f9fa;
+    background: white;
     color: #333;
+}
+
+.form-help {
+    margin-top: 0.25rem;
+    color: #999;
+    font-size: 0.85rem;
+}
+
+.btn-primary {
+    padding: 0.75rem 1.5rem;
+    background: linear-gradient(90deg, #ff4d4d, #ff8a00);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    align-self: flex-start;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(255, 77, 77, 0.3);
 }
 
 .account-type {
@@ -298,6 +415,23 @@
         border-left: none;
         border-bottom-color: #ff4d4d;
     }
+
+    .current-banner {
+        height: 150px;
+    }
 }
 </style>
+
+<script>
+// Auto-submit profile picture when file is selected
+document.getElementById('profile-picture-input')?.addEventListener('change', function() {
+    // Show loading indicator
+    const avatar = document.querySelector('.avatar');
+    const originalContent = avatar.innerHTML;
+    avatar.innerHTML = '<div class="loading">Uploaden...</div>';
+
+    // Submit the form
+    this.form.submit();
+});
+</script>
 @endsection

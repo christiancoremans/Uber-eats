@@ -79,19 +79,32 @@ class User extends Authenticatable implements HasMedia
         return $this->hasMany(Review::class, 'restaurant_id');
     }
 
-    // Register media collections for restaurant
+    // Register media collections
     public function registerMediaCollections(): void
     {
+        // Add profile picture for all users
+        $this->addMediaCollection('profile_picture')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
+
+        // Add banner for all users
+        $this->addMediaCollection('banner')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
+
+        // Add restaurant logo only for restaurants
         if ($this->isRestaurant()) {
             $this->addMediaCollection('restaurant_logo')
                 ->singleFile()
                 ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
         }
     }
-        public function getAverageRatingAttribute()
+
+    public function getAverageRatingAttribute()
     {
         return $this->reviews()->avg('rating') ?? 0;
     }
+
     public function getReviewsCountAttribute()
     {
         return $this->reviews()->count();
@@ -101,5 +114,4 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->menuItems()->where('is_active', true)->count();
     }
-
 }

@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\ProfileController;
 
 // Home routes
 Route::get('/', [HomeController::class, 'index'])->name('home');
@@ -38,3 +39,14 @@ Route::middleware(['auth'])->prefix('restaurant')->name('restaurant.')->group(fu
 Route::get('/restaurant/{restaurant}', function($id) {
     return redirect()->route('home')->with('info', 'Restaurant detail pagina wordt nog ontwikkeld.');
 })->name('restaurant.show');
+
+// Add these routes in your web.php file, before the catch-all route:
+
+// Profile routes
+Route::middleware(['auth'])->group(function () {
+    Route::post('/profile/update-picture', [ProfileController::class, 'updateProfilePicture'])
+        ->name('profile.update-picture');
+
+    Route::post('/profile/update-banner', [ProfileController::class, 'updateBanner'])
+        ->name('profile.update-banner');
+});
