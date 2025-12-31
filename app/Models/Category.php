@@ -55,4 +55,10 @@ class Category extends Model
             }
         });
     }
+    public function registerMediaCollections(): void
+    {
+        $this->addMediaCollection('category_images')
+            ->singleFile()
+            ->acceptsMimeTypes(['image/jpeg', 'image/png', 'image/jpg', 'image/webp']);
+    }
 }
