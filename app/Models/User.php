@@ -114,4 +114,13 @@ class User extends Authenticatable implements HasMedia
     {
         return $this->menuItems()->where('is_active', true)->count();
     }
+    public function reviewsGiven()
+    {
+        return $this->hasMany(Review::class, 'customer_id');
+    }
+
+    public function reviewsReceived()
+    {
+        return $this->hasMany(Review::class, 'restaurant_id');
+    }
 }

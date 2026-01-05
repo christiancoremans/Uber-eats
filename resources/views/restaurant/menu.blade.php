@@ -105,6 +105,7 @@
                 </div>
             @endforeach
         </div>
+        @livewire('restaurant-review', ['restaurantId' => $restaurant->id])
     </div>
 
     <!-- Right Side - Shopping Cart (25%) -->
