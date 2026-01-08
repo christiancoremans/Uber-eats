@@ -20,8 +20,8 @@
         <!-- Restaurant Info -->
         <div class="restaurant-info-header">
             <div class="restaurant-logo-name">
-                @if($restaurant->getFirstMediaUrl('restaurant_logo'))
-                    <img src="{{ $restaurant->getFirstMediaUrl('restaurant_logo') }}" alt="{{ $restaurant->restaurant_name ?? $restaurant->name }}" class="restaurant-logo">
+                @if(Auth::user()->getFirstMediaUrl('profile_picture'))
+                        <img src="{{ Auth::user()->getFirstMediaUrl('profile_picture') }}" alt="{{ Auth::user()->name }}" class="profile-img" width="100px">
                 @else
                     <div class="logo-placeholder">
                         <span>🍽️</span>
