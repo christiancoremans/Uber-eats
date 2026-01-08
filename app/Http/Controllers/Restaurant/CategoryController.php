@@ -51,14 +51,20 @@ class CategoryController extends Controller
 
     public function edit(Category $category)
     {
-        $this->authorize('update', $category);
+        // Check if the category belongs to the authenticated user
+        if ($category->restaurant_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         return view('restaurant.categories.edit', compact('category'));
     }
 
     public function update(Request $request, Category $category)
     {
-        $this->authorize('update', $category);
+        // Check if the category belongs to the authenticated user
+        if ($category->restaurant_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         $validated = $request->validate([
             'name' => 'required|string|max:255',
@@ -77,7 +83,10 @@ class CategoryController extends Controller
 
     public function destroy(Category $category)
     {
-        $this->authorize('delete', $category);
+        // Check if the category belongs to the authenticated user
+        if ($category->restaurant_id !== Auth::id()) {
+            abort(403, 'Unauthorized action.');
+        }
 
         // Check if category has menu items
         if ($category->menuItems()->count() > 0) {
